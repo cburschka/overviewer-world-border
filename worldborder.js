@@ -23,10 +23,10 @@ overviewer.views.WorldBoundaryView = Backbone.View.extend({
       var c = circle(spawn, 2000, curTileSet, {
         'map': overviewer.map,
         strokeColor: '#FF0000',
-        strokeWeight: 1,
+        strokeWeight: 2,
         strokeOpacity: 0.5,
         fillColor: '#00FF00',
-        fillOpacity: 0.05
+        fillOpacity: 0.25
       }, 100);
     }
   }
