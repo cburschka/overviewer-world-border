@@ -1,5 +1,6 @@
 // ==UserScript==
 // @name        Spade World Boundary
+// @description This adds a world boundary overlay to the Overviewer map of the Spade server.
 // @namespace   http://ermarian.net/resources/minecraft/spade/
 // @include     http://te.calref.net/~minecraft/spade/
 // @version     1
