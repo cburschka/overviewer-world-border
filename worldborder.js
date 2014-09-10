@@ -20,7 +20,7 @@ overviewer.views.WorldBoundaryView = Backbone.View.extend({
     if (overviewer.collections.spawnMarker) {
       var curTileSet = overviewer.mapView.options.currentTileSet;
       var spawn = curTileSet.get('spawn');
-      var c = circle(spawn, 1500, curTileSet, {
+      var c = circle(spawn, 2000, curTileSet, {
         'map': overviewer.map,
         strokeColor: '#FF0000',
         strokeWeight: 1,
