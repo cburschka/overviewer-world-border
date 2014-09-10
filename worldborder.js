@@ -8,14 +8,14 @@
 // ==/UserScript==
 
 circle = function (point, r, tileSet, opts, vertices) {
-  opts.points = [];
+  opts.paths = [];
   for (var i = 0; i <= vertices; i++) {
     var angle = i / vertices * 2 * Math.PI;
     console.log(point[0] + r*Math.cos(angle), point[1], point[2] + r*Math.cos(angle));
     var p = overviewer.util.fromWorldToLatLng(
       point[0] + r*Math.cos(angle), point[1], point[2] + r*Math.cos(angle), tileSet
     );
-    opts.points.push(p);
+    opts.paths.push(p);
   }
   return new google.maps.Polygon(opts);
 }
