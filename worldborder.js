@@ -11,10 +11,16 @@ circle = function (point, r, tileSet, opts, vertices) {
   opts.paths = [];
   for (var i = 0; i <= vertices; i++) {
     var angle = i / vertices * 2 * Math.PI;
-    var p = overviewer.util.fromWorldToLatLng(point[0] + r * Math.cos(angle), point[1], point[2] + r * Math.sin(angle), tileSet);
+    var p = polar(point, r, angle, tileSet);
     opts.paths.push(p);
   }
   return new google.maps.Polygon(opts);
+}
+
+cartesian = overviewer.util.fromWorldToLatLng;
+
+polar = function (center, r, phi, tileSet) {
+  return cartesian(center[0] + r * Math.cos(phi), center[1], center[2] + r * Math.sin(phi), tileSet);
 }
 
 /* Copied from overviewer.views.OverlayControlView.addItem.
@@ -44,36 +50,138 @@ overlayControlAddItem = function(control, item) {
   itemDiv.appendChild(textNode);
 }
 
-overviewer.views.WorldBoundaryView = Backbone.View.extend({
+overviewer.views.WorldPolarView = Backbone.View.extend({
   render: function () {
     if (overviewer.collections.spawnMarker) {
       var curTileSet = overviewer.mapView.options.currentTileSet;
       var spawn = curTileSet.get('spawn');
-      var c = circle(spawn, 2500, curTileSet, {
-        strokeColor: '#FF0000',
-        strokeWeight: 2,
-        strokeOpacity: 0.5,
-        fillColor: '#00FF00',
-        fillOpacity: 0.25
-      }, 100);
-      return c;
+      var circles = [];
+      for (var i = 500; i <= 2500; i+=500) {
+        var c = circle(spawn, i, curTileSet, {
+          strokeColor: '#FF0000',
+          strokeWeight: 2,
+          strokeOpacity: 0.5,
+          fillOpacity: 0,
+          fillColor: '#00FF00'
+        }, 100);
+        circles.push(c);
+      }
+      var lineSymbol = {
+        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+      };
+      circles[4].fillOpacity = 0.1;
+      for (var i = 0; i < 360; i += 45) {
+        var p = new google.maps.Polyline({
+          path: [
+            polar(spawn, 0, 0, curTileSet),
+            polar(spawn, 3000, i * Math.PI / 180, curTileSet)
+          ],
+          icons: [{
+            icon: lineSymbol,
+            offset: '100%'
+          }],
+
+          strokeColor: '#FF0000',
+          strokeWeight: 2,
+          strokeOpacity: 0.5
+        });
+        circles.push(p);
+      }
+      return circles;
     }
   }
 });
 
+overviewer.views.WorldCartesianView = Backbone.View.extend({
+  render: function () {
+    var curTileSet = overviewer.mapView.options.currentTileSet;
+    var grid = [];
+    grid.push(new google.maps.Polyline({
+      path: [
+        cartesian(0, 64,  -3000, curTileSet),
+        cartesian(0, 64, 3000, curTileSet)
+      ],
+      strokeColor: '#FFFF00',
+      strokeWeight: 4,
+      strokeOpacity: 0.75
+    }));
+    grid.push(new google.maps.Polyline({
+      path: [
+        cartesian(-3000, 64, 0, curTileSet),
+        cartesian(3000, 64, 0, curTileSet)
+      ],
+      strokeColor: '#FFFF00',
+      strokeWeight: 4,
+      strokeOpacity: 0.75
+    }));
+    for (var i = 500; i <= 2500; i+=500) {
+      grid.push(new google.maps.Polyline({
+        path: [
+          cartesian(i, 64,  -3000, curTileSet),
+          cartesian(i, 64, 3000, curTileSet)
+        ],
+        strokeColor: '#FFFF00',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+      }));
+      grid.push(new google.maps.Polyline({
+        path: [
+          cartesian(-3000, 64, i, curTileSet),
+          cartesian(3000, 64, i, curTileSet)
+        ],
+        strokeColor: '#FFFF00',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+      }));
+      grid.push(new google.maps.Polyline({
+        path: [
+          cartesian(-i, 64,  -3000, curTileSet),
+          cartesian(-i, 64, 3000, curTileSet)
+        ],
+        strokeColor: '#FFFF00',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+      }));
+      grid.push(new google.maps.Polyline({
+        path: [
+          cartesian(-3000, 64, -i, curTileSet),
+          cartesian(3000, 64, -i, curTileSet)
+        ],
+        strokeColor: '#FFFF00',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+      }));
+    }
+    return grid;
+  }
+});
+
 overviewer.util.ready(function () {
-  var boundary = new overviewer.views.WorldBoundaryView();
-  var circle = boundary.render();
+  var polar = (new overviewer.views.WorldPolarView()).render();
+  var cartesian = (new overviewer.views.WorldCartesianView()).render();
+
 
   // Find the overlay menu:
   var overlayControl = overviewer.map.controls[google.maps.ControlPosition.TOP_RIGHT].j[2];
 
   overlayControlAddItem(
     overlayControl, {
-      label: "World Boundary",
-      name:"boundary",
+      label: "Polar Grid",
+      name:"polar",
       action: function(item, checked) {
-        circle.setMap(checked ? overviewer.map : null);
+        for (var e in polar) {
+          polar[e].setMap(checked ? overviewer.map : null);
+        }
+      }
+  });
+  overlayControlAddItem(
+    overlayControl, {
+      label: "Cartesian Grid",
+      name:"grid",
+      action: function(item, checked) {
+        for (var e in cartesian) {
+          cartesian[e].setMap(checked ? overviewer.map : null);
+        }
       }
   });
 });
