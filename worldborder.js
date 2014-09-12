@@ -3,7 +3,7 @@
 // @description This adds a world boundary overlay to the Overviewer map of the Spade server.
 // @namespace   http://ermarian.net/resources/minecraft/spade/
 // @include     http://te.calref.net/~minecraft/spade/*
-// @version     2
+// @version     2.01
 // @grant       none
 // ==/UserScript==
 
@@ -49,7 +49,7 @@ overviewer.views.WorldBoundaryView = Backbone.View.extend({
     if (overviewer.collections.spawnMarker) {
       var curTileSet = overviewer.mapView.options.currentTileSet;
       var spawn = curTileSet.get('spawn');
-      var c = circle(spawn, 2000, curTileSet, {
+      var c = circle(spawn, 2500, curTileSet, {
         strokeColor: '#FF0000',
         strokeWeight: 2,
         strokeOpacity: 0.5,
