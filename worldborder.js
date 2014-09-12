@@ -3,7 +3,7 @@
 // @description This adds a world boundary overlay to the Overviewer map of the Spade server.
 // @namespace   http://ermarian.net/resources/minecraft/spade/
 // @include     http://te.calref.net/~minecraft/spade/*
-// @version     2.01
+// @version     3.0
 // @grant       none
 // ==/UserScript==
 
